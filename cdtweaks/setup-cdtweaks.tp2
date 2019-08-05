@@ -35,6 +35,12 @@ ALWAYS
     
     END
 
+    ACTION_IF GAME_IS ~bg1 totsc tutu tutu_totsc bgt bgee eet~ THEN BEGIN
+
+      INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro 
+
+    END
+
     ACTION_IF GAME_IS ~soa tob bgt ca tutu tutu_totsc iwd_in_bg2~ THEN BEGIN
 
       ACTION_FOR_EACH file IN iplot01k.itm iplot04g.itm iplot04h.itm iplot04i.itm xr2400.are xr2600.are BEGIN
@@ -62,7 +68,7 @@ ALWAYS
 
 END
 
-VERSION ~v6~
+VERSION ~v9~
 
 README ~cdtweaks/languages/%LANGUAGE%/readme-cdtweaks.html~ ~cdtweaks/readme-cdtweaks.html~
 
@@ -827,6 +833,13 @@ END ELSE BEGIN // soa tob bg2ee eet bgt ca
 
   INCLUDE ~cdtweaks/lib/unique_icons_bg2.tpa~ // loads arrays
 
+  COPY_EXISTING ~plat19.itm~ ~override~ // make (wish) full plate +2 look like normal full plate +2, not full plate +1 (plate of the dark)
+    WRITE_ASCII 0x58 ~cplat09~ #8
+    LPF ALTER_EFFECT INT_VAR match_opcode = 7 match_parameter2 = 0 parameter1 = 27 END
+    LPF ALTER_EFFECT INT_VAR match_opcode = 7 match_parameter2 = 4 parameter1 = 25 END
+    LPF ALTER_EFFECT INT_VAR match_opcode = 7 match_parameter2 = 5 parameter1 = 27 END
+    BUT_ONLY IF_EXISTS
+
 END
 
 ACTION_PHP_EACH cd_unique_icons AS item => icon BEGIN
@@ -1346,8 +1359,6 @@ GROUP @13
 REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt bgee eet~ @25 // Tutu, BGEE or BGT only
 REQUIRE_PREDICATE NOT MOD_IS_INSTALLED ~BG1NPC/BG1NPC.TP2~ ~29~ @24 // don't install if same component from bg1 npc installed
 
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
-
 COPY_EXISTING ~worldmap.wmp~ ~override~
   READ_LONG  0x30 "area_num"
   READ_LONG  0x34 "area_off"
@@ -1364,7 +1375,8 @@ COPY_EXISTING ~worldmap.wmp~ ~override~
   END
   BUT_ONLY
 
-COPY_EXISTING ~%BanditCamp_RaemonsTent_BCS%.bcs~ ~override~
+COPY_EXISTING ~%BanditCamp_RaemonsTent_BCS%.bcs~ ~override~ // tutu, bgt. bg
+              ~baldur.bcs~                       ~override~ // eet, bgee
   DECOMPILE_BCS_TO_BAF
     REPLACE_TEXTUALLY ~RevealAreaOnMap("%CloakwoodLodge%")~ ~RevealAreaOnMap("%CloakwoodLodge%") RevealAreaOnMap("%CloakwoodNest%")~
   COMPILE_BAF_TO_BCS
@@ -1379,8 +1391,6 @@ SUBCOMPONENT @103500
 GROUP @13
 REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt bgee eet~ @25 // Tutu, BGEE or BGT only
 REQUIRE_PREDICATE NOT MOD_IS_INSTALLED ~BG1NPC/BG1NPC.TP2~ ~29~ @24 // don't install if same component from bg1 npc installed
-
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
 COPY_EXISTING ~worldmap.wmp~ ~override~
   READ_LONG  0x30 "area_num"
@@ -1398,7 +1408,8 @@ COPY_EXISTING ~worldmap.wmp~ ~override~
   END
   BUT_ONLY
 
-COPY_EXISTING ~%BanditCamp_RaemonsTent_BCS%.bcs~ ~override~
+COPY_EXISTING ~%BanditCamp_RaemonsTent_BCS%.bcs~ ~override~ // tutu, bgt. bg
+              ~baldur.bcs~                       ~override~ // eet, bgee
   DECOMPILE_BCS_TO_BAF
     REPLACE_TEXTUALLY ~RevealAreaOnMap("%CloakwoodLodge%")~ ~RevealAreaOnMap("%CloakwoodLodge%") RevealAreaOnMap("%CloakwoodMines%")~
   COMPILE_BAF_TO_BCS
@@ -1818,7 +1829,6 @@ END ELSE BEGIN // bg2-based engines
 
   ACTION_IF GAME_IS ~bgee bgt eet tutu tutu_totsc~ THEN BEGIN
 
-    INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
     COMPILE ~cdtweaks/dlg/multi_bgee.d~ EVALUATE_BUFFER // adds FAI, Nashkel, BG, Beregost options
 
     ACTION_IF GAME_IS ~bgt eet~ THEN BEGIN
@@ -2380,8 +2390,6 @@ GROUP @13
 REQUIRE_PREDICATE GAME_IS ~tutu tutu_totsc bgt bgee eet~ @25 // Tutu, bgee or BGT only
 REQUIRE_PREDICATE NOT MOD_IS_INSTALLED ~thecalling/setup-thecalling.tp2~ ~40~ @16 // already installed by the calling
 
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
-
 OUTER_SET generic_kat_name  = 7523
 OUTER_SET generic_kat_desc  = 35963
 OUTER_SET generic_ioun_name = 8181
@@ -2662,8 +2670,6 @@ ACTION_IF GAME_IS ~iwdee iwd_in_bg2 iwd how totlm~ THEN BEGIN
 END
 
 ACTION_IF GAME_IS ~bg1 totsc tutu tutu_totsc bgee bgt~ THEN BEGIN
-
-  INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
   COPY_EXISTING ~%NEBaldursGate_BCS%.bcs~ ~override~
     DECOMPILE_BCS_TO_BAF
@@ -3703,8 +3709,17 @@ BEGIN @118000 DESIGNATED 1180
 GROUP @13
 REQUIRE_PREDICATE GAME_IS ~soa tob bgt bg2ee eet~ @25
 
-COPY ~cdtweaks/bmp/royo4l.bmp~ ~override~
-     ~cdtweaks/bmp/royo4s.bmp~ ~override~
+ACTION_IF GAME_IS ~bg2ee eet~ THEN BEGIN
+
+  COPY ~cdtweaks/bmp/royo4_330.bmp~ ~override/royo4l.bmp~
+       ~cdtweaks/bmp/royo4_266.bmp~ ~override/royo4m.bmp~
+
+END ELSE BEGIN
+
+  COPY ~cdtweaks/bmp/royo4_170.bmp~ ~override/royo4l.bmp~
+       ~cdtweaks/bmp/royo4_60.bmp~  ~override/royo4m.bmp~
+
+END
 
 // add portrait change opcodes to edwin transform spells
 COPY_EXISTING ~spin662.spl~ ~override~ // return to edwin
@@ -3714,7 +3729,7 @@ COPY_EXISTING ~spin662.spl~ ~override~ // return to edwin
 // add portrait change opcodes to edwin transform spells
 COPY_EXISTING ~spin916.spl~ ~override~ // change to edwina
   LPF ADD_SPELL_EFFECT INT_VAR opcode = 107 target = 2 parameter2 = 1 timing = 1 STR_VAR resource = royo4l END // large portrait
-  LPF ADD_SPELL_EFFECT INT_VAR opcode = 107 target = 2 parameter2 = 0 timing = 1 STR_VAR resource = royo4s END // small portrait
+  LPF ADD_SPELL_EFFECT INT_VAR opcode = 107 target = 2 parameter2 = 0 timing = 1 STR_VAR resource = royo4m END // small portrait
 
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
@@ -3870,109 +3885,118 @@ BEGIN @121000 DESIGNATED 1210
 GROUP @13 
 REQUIRE_PREDICATE NOT GAME_IS ~bg1 totsc iwd how totlm iwd2 pst pstee~ @25
 
-COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
-  READ_SHORT 0x28 "anim" ELSE 0
-  PATCH_IF (
-       ("%SOURCE_FILE%" STRING_COMPARE_CASE   "charbase.cre" = 0)
-    OR ("%SOURCE_FILE%" STRING_COMPARE_REGEXP "^AERIE[0-9][0-9]?\.cre$" = 0) // aerie comes as a ogre, so gets missed
-    OR ("%anim%" = 0x5000)
-    OR ("%anim%" = 0x5001)
-    OR ("%anim%" = 0x5002)
-    OR ("%anim%" = 0x5003)
-    OR ("%anim%" = 0x5010)
-    OR ("%anim%" = 0x5011)
-    OR ("%anim%" = 0x5012)
-    OR ("%anim%" = 0x5013)
-    OR ("%anim%" = 0x5100)
-    OR ("%anim%" = 0x5101)
-    OR ("%anim%" = 0x5102)
-    OR ("%anim%" = 0x5103)
-    OR ("%anim%" = 0x5110)
-    OR ("%anim%" = 0x5111)
-    OR ("%anim%" = 0x5112)
-    OR ("%anim%" = 0x5113)
-    OR ("%anim%" = 0x5200)
-    OR ("%anim%" = 0x5201)
-    OR ("%anim%" = 0x5202)
-    OR ("%anim%" = 0x5210)
-    OR ("%anim%" = 0x5211)
-    OR ("%anim%" = 0x5212)
-    OR ("%anim%" = 0x5300)
-    OR ("%anim%" = 0x5301)
-    OR ("%anim%" = 0x5302)
-    OR ("%anim%" = 0x5303)
-    OR ("%anim%" = 0x5310)
-    OR ("%anim%" = 0x5311)
-    OR ("%anim%" = 0x5312)
-    OR ("%anim%" = 0x5313)
-    OR ("%anim%" = 0x6000)
-    OR ("%anim%" = 0x6001)
-    OR ("%anim%" = 0x6002)
-    OR ("%anim%" = 0x6003)
-    OR ("%anim%" = 0x6004)
-    OR ("%anim%" = 0x6005)
-    OR ("%anim%" = 0x6010)
-    OR ("%anim%" = 0x6011)
-    OR ("%anim%" = 0x6012)
-    OR ("%anim%" = 0x6013)
-    OR ("%anim%" = 0x6014)
-    OR ("%anim%" = 0x6015)
-    OR ("%anim%" = 0x6100)
-    OR ("%anim%" = 0x6101)
-    OR ("%anim%" = 0x6102)
-    OR ("%anim%" = 0x6103)
-    OR ("%anim%" = 0x6104)
-    OR ("%anim%" = 0x6105)
-    OR ("%anim%" = 0x6110)
-    OR ("%anim%" = 0x6111)
-    OR ("%anim%" = 0x6112)
-    OR ("%anim%" = 0x6113)
-    OR ("%anim%" = 0x6114)
-    OR ("%anim%" = 0x6115)
-    OR ("%anim%" = 0x6200)
-    OR ("%anim%" = 0x6201)
-    OR ("%anim%" = 0x6202)
-    OR ("%anim%" = 0x6204)
-    OR ("%anim%" = 0x6205)
-    OR ("%anim%" = 0x6210)
-    OR ("%anim%" = 0x6211)
-    OR ("%anim%" = 0x6212)
-    OR ("%anim%" = 0x6214)
-    OR ("%anim%" = 0x6215)
-    OR ("%anim%" = 0x6300)
-    OR ("%anim%" = 0x6301)
-    OR ("%anim%" = 0x6302)
-    OR ("%anim%" = 0x6303)
-    OR ("%anim%" = 0x6304)
-    OR ("%anim%" = 0x6305)
-    OR ("%anim%" = 0x6310)
-    OR ("%anim%" = 0x6311)
-    OR ("%anim%" = 0x6312)
-    OR ("%anim%" = 0x6313)
-    OR ("%anim%" = 0x6314)
-    OR ("%anim%" = 0x6315)
-    OR ("%anim%" = 0x6500)
-    OR ("%anim%" = 0x6510)) BEGIN
-    READ_BYTE   0x33 fx_flag
-    READ_LONG  0x2c4 fx_off
-    READ_LONG  0x2c8 fx_num
-    WRITE_LONG 0x2c8 (fx_num + 1)
-    // fix offsets after inserted effects
-    PATCH_FOR_EACH offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
-      READ_LONG offset offset_val
-      PATCH_IF (fx_off <= offset_val) BEGIN
-        WRITE_LONG offset (offset_val + 0x30 + (fx_flag * 0xd8))
-      END
-    END
-    INSERT_BYTES fx_off (0x30 + (fx_flag * 0xd8))
-    WRITE_SHORT (fx_off +        (fx_flag * 0x08)) 176
-    WRITE_BYTE  (fx_off + 0x02 + (fx_flag * 0x0a)) 1
-    WRITE_LONG  (fx_off + 0x04 + (fx_flag * 0x10)) 0xfffffffd
-    WRITE_BYTE  (fx_off + 0x0c + (fx_flag * 0x10)) 9
-    WRITE_BYTE  (fx_off + 0x12 + (fx_flag * 0x12)) 100
-  END
-  BUT_ONLY
+ACTION_IF GAME_IS ~bgee bg2ee eet iwdee~ THEN BEGIN // in ee, can adjust the animation speed directly
+   
+  COPY_EXISTING_REGEXP GLOB ~^[56][012345][01][0-9]\.ini$~ ~override~ 
+    REPLACE_TEXTUALLY ~^move_scale=9~ ~move_scale=7~
+    BUT_ONLY
 
+END ELSE BEGIN
+
+  COPY_EXISTING_REGEXP GLOB ~^.+\.cre$~ ~override~
+    READ_SHORT 0x28 "anim" ELSE 0
+    PATCH_IF (
+         ("%SOURCE_FILE%" STRING_COMPARE_CASE   "charbase.cre" = 0)
+      OR ("%SOURCE_FILE%" STRING_COMPARE_REGEXP "^AERIE[0-9][0-9]?\.cre$" = 0) // aerie comes as a ogre, so gets missed
+      OR ("%anim%" = 0x5000)
+      OR ("%anim%" = 0x5001)
+      OR ("%anim%" = 0x5002)
+      OR ("%anim%" = 0x5003)
+      OR ("%anim%" = 0x5010)
+      OR ("%anim%" = 0x5011)
+      OR ("%anim%" = 0x5012)
+      OR ("%anim%" = 0x5013)
+      OR ("%anim%" = 0x5100)
+      OR ("%anim%" = 0x5101)
+      OR ("%anim%" = 0x5102)
+      OR ("%anim%" = 0x5103)
+      OR ("%anim%" = 0x5110)
+      OR ("%anim%" = 0x5111)
+      OR ("%anim%" = 0x5112)
+      OR ("%anim%" = 0x5113)
+      OR ("%anim%" = 0x5200)
+      OR ("%anim%" = 0x5201)
+      OR ("%anim%" = 0x5202)
+      OR ("%anim%" = 0x5210)
+      OR ("%anim%" = 0x5211)
+      OR ("%anim%" = 0x5212)
+      OR ("%anim%" = 0x5300)
+      OR ("%anim%" = 0x5301)
+      OR ("%anim%" = 0x5302)
+      OR ("%anim%" = 0x5303)
+      OR ("%anim%" = 0x5310)
+      OR ("%anim%" = 0x5311)
+      OR ("%anim%" = 0x5312)
+      OR ("%anim%" = 0x5313)
+      OR ("%anim%" = 0x6000)
+      OR ("%anim%" = 0x6001)
+      OR ("%anim%" = 0x6002)
+      OR ("%anim%" = 0x6003)
+      OR ("%anim%" = 0x6004)
+      OR ("%anim%" = 0x6005)
+      OR ("%anim%" = 0x6010)
+      OR ("%anim%" = 0x6011)
+      OR ("%anim%" = 0x6012)
+      OR ("%anim%" = 0x6013)
+      OR ("%anim%" = 0x6014)
+      OR ("%anim%" = 0x6015)
+      OR ("%anim%" = 0x6100)
+      OR ("%anim%" = 0x6101)
+      OR ("%anim%" = 0x6102)
+      OR ("%anim%" = 0x6103)
+      OR ("%anim%" = 0x6104)
+      OR ("%anim%" = 0x6105)
+      OR ("%anim%" = 0x6110)
+      OR ("%anim%" = 0x6111)
+      OR ("%anim%" = 0x6112)
+      OR ("%anim%" = 0x6113)
+      OR ("%anim%" = 0x6114)
+      OR ("%anim%" = 0x6115)
+      OR ("%anim%" = 0x6200)
+      OR ("%anim%" = 0x6201)
+      OR ("%anim%" = 0x6202)
+      OR ("%anim%" = 0x6204)
+      OR ("%anim%" = 0x6205)
+      OR ("%anim%" = 0x6210)
+      OR ("%anim%" = 0x6211)
+      OR ("%anim%" = 0x6212)
+      OR ("%anim%" = 0x6214)
+      OR ("%anim%" = 0x6215)
+      OR ("%anim%" = 0x6300)
+      OR ("%anim%" = 0x6301)
+      OR ("%anim%" = 0x6302)
+      OR ("%anim%" = 0x6303)
+      OR ("%anim%" = 0x6304)
+      OR ("%anim%" = 0x6305)
+      OR ("%anim%" = 0x6310)
+      OR ("%anim%" = 0x6311)
+      OR ("%anim%" = 0x6312)
+      OR ("%anim%" = 0x6313)
+      OR ("%anim%" = 0x6314)
+      OR ("%anim%" = 0x6315)
+      OR ("%anim%" = 0x6500)
+      OR ("%anim%" = 0x6510)) BEGIN
+      READ_BYTE   0x33 fx_flag
+      READ_LONG  0x2c4 fx_off
+      READ_LONG  0x2c8 fx_num
+      WRITE_LONG 0x2c8 (fx_num + 1)
+      // fix offsets after inserted effects
+      PATCH_FOR_EACH offset IN 0x2a0 0x2a8 0x2b0 0x2b8 0x2bc BEGIN
+        READ_LONG offset offset_val
+        PATCH_IF (fx_off <= offset_val) BEGIN
+          WRITE_LONG offset (offset_val + 0x30 + (fx_flag * 0xd8))
+        END
+      END
+      INSERT_BYTES fx_off (0x30 + (fx_flag * 0xd8))
+      WRITE_SHORT (fx_off +        (fx_flag * 0x08)) 176
+      WRITE_BYTE  (fx_off + 0x02 + (fx_flag * 0x0a)) 1
+      WRITE_LONG  (fx_off + 0x04 + (fx_flag * 0x10)) 0xfffffffd
+      WRITE_BYTE  (fx_off + 0x0c + (fx_flag * 0x10)) 9
+      WRITE_BYTE  (fx_off + 0x12 + (fx_flag * 0x12)) 100
+    END
+    BUT_ONLY
+
+END
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 /////                                                  \\\\\
@@ -4049,7 +4073,7 @@ ACTION_IF GAME_IS ~bg2ee eet~ BEGIN
 
   COPY_EXISTING ~cromwell.bcs~ ~override~
     DECOMPILE_AND_PATCH BEGIN
-      REPLACE_TEXTUALLY ~RestParty()[ %TAB%%LNL%%MNL%%WNL%]+AdvanceTime(SIXTEEN_HOURS)~ ~~ // remove rest/advancetime
+      REPLACE_TEXTUALLY ~RestParty\(Ex\)?(\(0,0,FALSE\)?)[ %TAB%%LNL%%MNL%%WNL%]+AdvanceTime(SIXTEEN_HOURS)~ ~~ // remove rest/advancetime
     END
     BUT_ONLY
 
@@ -4068,7 +4092,7 @@ ACTION_IF GAME_IS ~bg2ee eet~ THEN BEGIN
 
   COPY_EXISTING ~cromwell.bcs~ ~override~
     DECOMPILE_AND_PATCH BEGIN
-      REPLACE_TEXTUALLY ~RestParty()[ %TAB%%LNL%%MNL%%WNL%]+AdvanceTime(SIXTEEN_HOURS)~ ~AdvanceTime(EIGHT_HOURS)~ // remove rest, change advance to 8
+      REPLACE_TEXTUALLY ~RestParty\(Ex\)?(\(0,0,FALSE\)?)[ %TAB%%LNL%%MNL%%WNL%]+AdvanceTime(SIXTEEN_HOURS)~ ~AdvanceTime(EIGHT_HOURS)~ // remove rest, change advance to 8
     END
     BUT_ONLY
 
@@ -4227,13 +4251,11 @@ BEGIN @125000 DESIGNATED 1250 DEPRECATED @18 // deprecated in favor of individua
 ///// Move NPCs From Baldur's Gate: alora              \\\\\
 /////                                                  \\\\\
 
-BEGIN @125000 DESIGNATED 1251
+BEGIN @125100 DESIGNATED 1251
 GROUP @13
 REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25
 REQUIRE_PREDICATE NOT FILE_EXISTS ~override/dw#npc_start_loc.mrk~ @16 // scs version of same
 REQUIRE_PREDICATE !FILE_EXISTS ~override/X#AloraMove.G3~ @16 // bg1 npc does these separately
-
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
 ACTION_IF GAME_IS ~bg1 totsc~ THEN BEGIN
 
@@ -4298,8 +4320,6 @@ REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25
 REQUIRE_PREDICATE NOT FILE_EXISTS ~override/dw#npc_start_loc.mrk~ @16 // scs version of same
 REQUIRE_PREDICATE !FILE_EXISTS ~override/X#EldothMove.G3~ @16 // bg1 npc does these separately
 
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
-
 COPY_EXISTING ~%ELDOTH_BCS%.bcs~ ~override~ // bg1npc compat
   DECOMPILE_AND_PATCH BEGIN
   	REPLACE_TEXTUALLY ~!Global("X#SkieLeftEldoth","GLOBAL",1)~ ~OR(2) !Global("X#SkieLeftEldoth","GLOBAL",1) !Global("EldothMove","GLOBAL",0)~
@@ -4330,7 +4350,7 @@ END ELSE BEGIN // bgt
     COMPILE_BAF_TO_BCS
     BUT_ONLY_IF_IT_CHANGES
   
-  EXTEND_BOTTOM ~%CoastWay_BCS%.bcs~                  ~cdtweaks/baf/bgt_spawn_alora.baf~
+  EXTEND_BOTTOM ~%CoastWay_BCS%.bcs~                  ~cdtweaks/baf/bgt_spawn_eldoth.baf~
 
 END
 
@@ -4343,8 +4363,6 @@ GROUP @13
 REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25
 REQUIRE_PREDICATE NOT FILE_EXISTS ~override/dw#npc_start_loc.mrk~ @16 // scs version of same
 REQUIRE_PREDICATE !FILE_EXISTS ~override/X#QuayleMove.G3~ @16 // bg1 npc does these separately
-
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
 ACTION_IF NOT GAME_IS ~bgt~ THEN BEGIN // all other platforms use GAM file
 
@@ -4384,8 +4402,6 @@ REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25
 REQUIRE_PREDICATE NOT FILE_EXISTS ~override/dw#npc_start_loc.mrk~ @16 // scs version of same
 //REQUIRE_PREDICATE !FILE_EXISTS ~override/X#QuayleMove.G3~ @16 // bg1 npc doesn't move her
 
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
-
 ACTION_IF NOT GAME_IS ~bgt~ THEN BEGIN // all other platforms use GAM file
 
   COPY_EXISTING ~baldur.gam~ ~override~
@@ -4395,8 +4411,8 @@ ACTION_IF NOT GAME_IS ~bgt~ THEN BEGIN // all other platforms use GAM file
       READ_ASCII (npc_off + 0x0c + (index * 0x160)) ~CREName~
       PATCH_IF (~%CREName%~ STRING_COMPARE_CASE ~%tutu_var%SHARTE~ = 0) BEGIN // Quayle Starts at the Nashkel Carnival
         WRITE_ASCIIE (npc_off + 0x18 + (index * 0x160)) ~%NorthNashkelRoad%~ #8
-        WRITE_SHORT  (npc_off + 0x20 + (index * 0x160)) 1067
-        WRITE_SHORT  (npc_off + 0x22 + (index * 0x160)) 3784
+        WRITE_SHORT  (npc_off + 0x20 + (index * 0x160)) 1391
+        WRITE_SHORT  (npc_off + 0x22 + (index * 0x160)) 2524
       END
     END
     BUT_ONLY_IF_IT_CHANGES
@@ -4423,8 +4439,6 @@ GROUP @13
 REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25
 REQUIRE_PREDICATE NOT FILE_EXISTS ~override/dw#npc_start_loc.mrk~ @16 // scs version of same
 REQUIRE_PREDICATE !FILE_EXISTS ~override/X#TiaxMove.G3~ @16 // bg1 npc does these separately
-
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
 ACTION_IF NOT GAME_IS ~bgt~ THEN BEGIN // all other platforms use GAM file
 
@@ -4464,8 +4478,6 @@ REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25
 REQUIRE_PREDICATE NOT FILE_EXISTS ~override/dw#npc_start_loc.mrk~ @16 // scs version of same
 //REQUIRE_PREDICATE !FILE_EXISTS ~override/X#QuayleMove.G3~ @16 // bg1 npc doesn't move her
 
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
-
 ACTION_IF NOT GAME_IS ~bgt~ THEN BEGIN // all other platforms use GAM file
 
   COPY_EXISTING ~baldur.gam~ ~override~
@@ -4485,9 +4497,9 @@ END ELSE BEGIN // bgt
 
   // disable spawns
   COPY_EXISTING ~%Peldvale_BCS%.bcs~     ~override~ // ar8900, peldvale
-    DECOMPILE_BCS_TO_BAF
+    DECOMPILE_AND_PATCH BEGIN
       REPLACE_TEXTUALLY ~Global("BGTNPC[0-9]+","GLOBAL",0)~ ~False()~
-    COMPILE_BAF_TO_BCS
+    END
     BUT_ONLY_IF_IT_CHANGES
 
   EXTEND_BOTTOM ~%SouthBeregostRoad_BCS%.bcs~           ~cdtweaks/baf/bgt_spawn_viconia.baf~
@@ -4496,6 +4508,7 @@ END
 
 COPY_EXISTING ~%tutu_var%%tutu_scriptbg%viconi%eet_var%.dlg~ ~override~ // viconi in bg/bgee, bgviconi in bgt, _viconi in tutu, viconi_ in eet
   DECOMPILE_AND_PATCH BEGIN
+    REPLACE_TEXTUALLY ~CreateCreature("FLAM2",\[605\.901\])~ ~CreateCreature("FLAM2",[1620.420],0)~  // BG lacks a direction parameter, fix syntax
     REPLACE_TEXTUALLY ~CreateCreature("FLAM2",\[605\.901\]~ ~CreateCreature("FLAM2",[1620.420]~  // move the FF spawn to reflect her new coords
     REPLACE_TEXTUALLY ~MoveToPoint(\[507\.806\])~ ~MoveToPoint([1520.320])~ 
   END
@@ -4580,8 +4593,6 @@ EXTEND_BOTTOM ~ajantis.bcs~ ~cdtweaks/baf/X#LPRCAJR.BAF~
 BEGIN @127000 DESIGNATED 1270 // ~Revert Chapter Change in Cloakwood Mines to Non-ToTSC BG Behavior~
 GROUP @13
 REQUIRE_PREDICATE GAME_IS ~totsc bgt eet bgee tutu tutu_totsc~ @25
-
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
 COPY_EXISTING ~%CloakwoodMines_L4%.are~ override // AR1803, 8603bgt
   READ_ASCII 0x94 areascript (8) NULL
@@ -5755,6 +5766,9 @@ COPY + ~cdtweaks/2da/common_armor_list.2da~ ~cdtweaks/2da/common_armor_list.2da~
             PATCH_PRINT ~%file% is being patched...~
             LPF DELETE_ITEM_EQEFFECT INT_VAR opcode_to_delete =  60 END
             LPF DELETE_ITEM_EQEFFECT INT_VAR opcode_to_delete = 145 END
+            PATCH_FOR_EACH res IN d5arcal d5arcac d5arcap BEGIN // compat with subtledoctor
+              LPF DELETE_EFFECT INT_VAR match_opcode = 177 STR_VAR match_resource = EVAL ~%res%~ END
+            END 
             LPF ADD_ITEM_EQEFFECT INT_VAR opcode = 60 target = 1 parameter1 = penalty_miscast timing = 2 END
             // adjust descriptions
             PATCH_FOR_EACH offset IN 0x50 0x54 BEGIN
@@ -6055,6 +6069,7 @@ COPY + ~override/cdpnp.2da~ ~cdtweaks/2da/cdpnp.2da~
             WRITE_SHORT  (fx_off + 0x20) new_fx       // fx index
             WRITE_SHORT  (fx_off + 0x22) 1            // num charges
             WRITE_BYTE   (fx_off + 0x24) 1            // vanishes when drained
+            WRITE_LONG   (fx_off + 0x26) BIT11        // recharge after resting
             WRITE_SHORT  (fx_off + 0x2a) 1            // projectile: none
           BUT_ONLY
 
@@ -10282,13 +10297,7 @@ INCLUDE ~cdtweaks/lib/increase_scroll.tpa~
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 
 BEGIN @500000 DESIGNATED 3115
-GROUP @4
-REQUIRE_PREDICATE GAME_IS ~bgee bg1 totsc tutu tutu_totsc eet bgt~ @25
-
-WITH_SCOPE BEGIN // isolate DW-coded components from the rest of the mod, in case we have incompatible variables or something
-     INCLUDE "cdtweaks/dw_components/always_lite.tpa"
-     LAF run STR_VAR file="ankheg_shells" END
-END
+DEPRECATED @18 // already covered by gem/jewelry 
 
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
@@ -10453,23 +10462,23 @@ COPY_EXISTING_REGEXP GLOB ~^.+\.are$~ ~override~
     END
   END
   FOR (index2 = 0 ; index2 < cont_num ; ++index2) BEGIN // cycle through containers
-    READ_SHORT  (cont_off + 0x26 + (index2 * 0xc0)) lock_diff // lock difficulty
-    PATCH_IF ((lock_diff > 0) AND (lock_diff < 100)) BEGIN
+    READ_ASCII  (cont_off + 0x78 + (index2 * 0xc0)) key // key 
+    PATCH_IF (("%key%" STRING_COMPARE_CASE "" = 0) OR ("%key%" STRING_COMPARE_CASE "None" = 0)) BEGIN
       WRITE_SHORT  (cont_off + 0x26 + (index2 * 0xc0)) 0 // lock difficulty
     END
     READ_SHORT  (cont_off + 0x2c + (index2 * 0xc0)) trap_diff // trap difficulty
-    PATCH_IF ((trap_diff > 0) AND (trap_diff < 100)) BEGIN
+    PATCH_IF (trap_diff != 100) BEGIN
       WRITE_SHORT (cont_off + 0x30 + (index2 * 0xc0)) 0 // is not a trap
     END
   END
   FOR (index3 = 0 ; index3 < door_num ; ++index3) BEGIN // cycle through doors
     WRITE_LONG (door_off + 0x88 + (index3 * 0xc8)) 0         // detect diff (secret doors)
     READ_SHORT (door_off + 0x6e + (index3 * 0xc8)) trap_diff // detect diff
-    PATCH_IF ((trap_diff > 0) AND (trap_diff < 100)) BEGIN
+    PATCH_IF (trap_diff != 100) BEGIN
       WRITE_SHORT (door_off + 0x70 + (index3 * 0xc8)) 0 // is not a trap
     END
-    READ_LONG  (door_off + 0x8c + (index3 * 0xc8)) lock_diff // lock diff
-    PATCH_IF ((lock_diff > 0) AND (lock_diff < 100)) BEGIN
+    READ_ASCII (door_off + 0x78 + (index3 * 0xc0)) key // key 
+    PATCH_IF (("%key%" STRING_COMPARE_CASE "" = 0) OR ("%key%" STRING_COMPARE_CASE "None" = 0)) BEGIN
       WRITE_LONG  (door_off + 0x8c + (index3 * 0xc8)) 0 // lock diff
     END
   END
@@ -11560,19 +11569,17 @@ COPY_EXISTING ~abclasrq.2da~ ~override~
 
 BEGIN @322000 DESIGNATED 3220
 GROUP @4
-REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee soa tob~ @25
+REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt soa tob~ @25
 
-ACTION_IF GAME_IS ~bg1 totsc tutu tutu_totsc bgt bgee eet~ THEN BEGIN // BGT/Tutu/BGEE changes
+ACTION_IF GAME_IS ~bg1 totsc tutu tutu_totsc bgt~ THEN BEGIN // BGT/Tutu/BGEE changes
 
-  INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
-
-  ACTION_IF GAME_IS ~bgt eet~ THEN BEGIN // BGT
+  ACTION_IF GAME_IS ~bgt~ THEN BEGIN // BGT
     
     COPY_EXISTING ~%Beregost%.are~ ~override~ // only change for BGT is to move the east beregost entrance
       LPF ALTER_AREA_ENTRANCE INT_VAR x_coord = 4950 y_coord = 3085 orient = 4 STR_VAR entrance_name = "Exit9300" END
       BUT_ONLY
 
-  END ELSE BEGIN // BG/Tutu/BGEE changes
+  END ELSE BEGIN // BG/Tutu changes
 
     COPY_EXISTING ~worldmap.wmp~ ~override~
       READ_LONG 0x0c mos_off
@@ -11901,8 +11908,6 @@ END
 BEGIN @323000 DESIGNATED 3230
 GROUP @4
 REQUIRE_PREDICATE GAME_IS ~bgee bg1 totsc tutu tutu_totsc eet bgt~ @25
-
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
 ACTION_IF NOT GAME_IS ~bg1 totsc~ THEN BEGIN // change fenten/taerom to only take one shell at a time
   COMPILE ~cdtweaks/dlg/ankheg.d~ EVALUATE_BUFFER // use TakePartyItemNum when we can
@@ -12754,7 +12759,7 @@ END
 
 BEGIN @330000 DESIGNATED 3300
 GROUP @4
-REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet sod~ @25
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @25
 
 COPY_EXISTING_REGEXP GLOB ~^.+\.are$~ ~override~
   WRITE_LONG 0x14 (THIS | BIT4) // add player1-can-die bit
@@ -12814,10 +12819,79 @@ COPY_EXISTING_REGEXP GLOB ~^.+\.sto$~ ~override~
 
 BEGIN @502000 DESIGNATED 3330
 GROUP @4
+REQUIRE_PREDICATE GAME_IS ~bg2 tob tutu  tutu_totsc bgt ca bgee bg2ee eet~ @25 // requires op 295, so EEs or bg2 only
 
 WITH_SCOPE BEGIN // isolate DW-coded components from the rest of the mod, in case we have incompatible variables or something
      INCLUDE "cdtweaks/dw_components/always_lite.tpa"
      LAF run STR_VAR file="no_chunk" END
+END
+
+/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
+/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
+/////                                                  \\\\\
+///// Increase party movement speed outside combat    \\\\\
+/////                                                  \\\\\
+/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
+/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
+
+/////                                                  \\\\\
+///// By 50 percent                                    \\\\\
+/////                                                  \\\\\
+
+BEGIN @333001 DESIGNATED 3340
+GROUP @4
+REQUIRE_PREDICATE (NOT GAME_IS ~pstee~ && VALID_SCRIPT_TRIGGERS ~NextTriggerObject(Player1)~) @25
+SUBCOMPONENT @333000
+
+INCLUDE ~cdtweaks/lib/increased_party_movement_speed.tpa~
+
+LAF A7_INSTALL_AUTOHASTE
+  INT_VAR speed_percent = 150
+  RET success
+END
+
+ACTION_IF (NOT success) BEGIN
+  ABORT @28
+END
+
+/////                                                  \\\\\
+///// By 100 percent                                   \\\\\
+/////                                                  \\\\\
+
+BEGIN @333002 DESIGNATED 3341
+GROUP @4
+REQUIRE_PREDICATE (NOT GAME_IS ~pstee~ && VALID_SCRIPT_TRIGGERS ~NextTriggerObject(Player1)~) @25
+SUBCOMPONENT @333000
+
+INCLUDE ~cdtweaks/lib/increased_party_movement_speed.tpa~
+
+LAF A7_INSTALL_AUTOHASTE
+  INT_VAR speed_percent = 200
+  RET success
+END
+
+ACTION_IF (NOT success) BEGIN
+  ABORT @28
+END
+
+/////                                                  \\\\\
+///// By 150 percent                                   \\\\\
+/////                                                  \\\\\
+
+BEGIN @333003 DESIGNATED 3342
+GROUP @4
+REQUIRE_PREDICATE (NOT GAME_IS ~pstee~ && VALID_SCRIPT_TRIGGERS ~NextTriggerObject(Player1)~) @25
+SUBCOMPONENT @333000
+
+INCLUDE ~cdtweaks/lib/increased_party_movement_speed.tpa~
+
+LAF A7_INSTALL_AUTOHASTE
+  INT_VAR speed_percent = 250
+  RET success
+END
+
+ACTION_IF (NOT success) BEGIN
+  ABORT @28
 END
 
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
@@ -13082,11 +13156,19 @@ BEGIN @501000 DESIGNATED 4025
 GROUP @0
 REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25
 
-WITH_SCOPE BEGIN // isolate DW-coded components from the rest of the mod, in case we have incompatible variables or something
-WITH_TRA "cdtweaks/languages/english/dw_components.tra" "cdtweaks/languages/%LANGUAGE%/dw_components.tra" BEGIN
+ACTION_IF !GAME_IS ~bg1 totsc~ BEGIN // originally modified a bunch of junk here, but easier just to do original bg1 as a one-off
+  WITH_SCOPE BEGIN // isolate DW-coded components from the rest of the mod, in case we have incompatible variables or something
+    WITH_TRA "cdtweaks/languages/english/dw_components.tra" "cdtweaks/languages/%LANGUAGE%/dw_components.tra" BEGIN
      INCLUDE "cdtweaks/dw_components/always_lite.tpa"
      LAF run STR_VAR file="npc_separate" END
-END
+    END
+  END
+END ELSE BEGIN
+  
+  APPEND ~state.ids~ ~0x80101FEF CD_STATE_NOTVALID~ UNLESS ~^0x80101FEF[ %TAB]+CD_STATE_NOTVALID[ %TAB%%LNL%%MNL%%WNL%]~
+  
+  COMPILE ~cdtweaks/dlg/pairsep_bg1.d~ USING "cdtweaks/languages/english/dw_components.tra" "cdtweaks/languages/%LANGUAGE%/dw_components.tra"
+  
 END
 
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
@@ -13478,8 +13560,6 @@ ACTION_IF GAME_IS ~bg1 totsc~ BEGIN
 
 END ELSE BEGIN // tutu, bgt, bgee
 
-  INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
-  
   COPY_EXISTING ~%tutu_var%khalid2.cre~ ~override~
     READ_ASCII 0x0a4 soundset (396) // read soundset from existing cre file
     // detect if walking speed altered
@@ -13622,8 +13702,6 @@ END
 BEGIN @409000 DESIGNATED 4090
 GROUP @0
 REQUIRE_PREDICATE GAME_IS ~bgee tutu tutu_totsc eet bgt~ @25
-
-INCLUDE ~cdtweaks/lib/g3_cpmvars_master.tpa~ // sets bg/bgee/bgt/eet/tutu vars, cd_extend_bg_area_script macro
 
 COPY_EXISTING ~%tutu_var%montar.cre~ ~override~
   READ_ASCII 0x0a4 soundset (396) // read soundset from existing cre file
@@ -13883,7 +13961,7 @@ COPY_EXISTING_REGEXP GLOB ~^_?xan[46]?\.cre$~ ~override~
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 
-BEGIN @501000 DESIGNATED 4150
+BEGIN @503000 DESIGNATED 4150
 GROUP @0
 REQUIRE_PREDICATE GAME_IS ~bg1 totsc tutu tutu_totsc bgt eet bgee~ @25 // Tutu or BGT only
 
